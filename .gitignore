@@ -43,8 +43,8 @@ Thumbs.db
 # Docker
 .dockerenv
 
-# Model files (if any large model files are downloaded)
-*.gguf
+# Model files are stored using git LFS
+# *.gguf
 *.bin
 *.pt
 *.pth
