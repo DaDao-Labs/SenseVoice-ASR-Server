@@ -207,7 +207,3 @@ This service leverages the [llama.cpp](https://github.com/ggerganov/llama.cpp) r
 - Ensure the audio file format is supported
 - Check container logs: `docker logs sensevoice-service`
 - Verify the audio file is not corrupted
-
-## License
-
-This project is provided as-is for educational and development purposes.
