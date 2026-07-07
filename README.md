@@ -28,6 +28,7 @@ You can find the Docker image on [**markgzhou/sensevoice-asr-server**](https://h
 docker run -d \
   -p 8000:8000 \
   -e SENSEVOICE_API_KEY=MySuperSafeApiKey \
+  -e SENSEVOICE_TIMEOUT=60 \
   --name sensevoice-service \
   markgzhou/sensevoice-asr-server:latest
 ```
@@ -77,9 +78,10 @@ All API requests require an `x-api-key` header (case-insensitive):
 
 ### Environment Variables
 
-| Variable             | Description                | Default value       |
-| -------------------- | -------------------------- | ------------------- |
-| `SENSEVOICE_API_KEY` | API key for authentication | `MySuperSafeApiKey` |
+| Variable             | Description                                                                    | Default value       |
+| -------------------- | ------------------------------------------------------------------------------ | ------------------- |
+| `SENSEVOICE_API_KEY` | API key for authentication                                                     | `MySuperSafeApiKey` |
+| `SENSEVOICE_TIMEOUT` | ASR transcription timeout in seconds (must be > 10, decimals converted to int) | `60`                |
 
 ### Project Structure
 

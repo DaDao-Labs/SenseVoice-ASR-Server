@@ -17,6 +17,33 @@ app = FastAPI(title="SenseVoice ASR Service")
 # API Key configuration: load from environment variable or use default
 API_KEY = os.getenv("SENSEVOICE_API_KEY", "MySuperSafeApiKey")
 
+# Timeout configuration: load from environment variable with validation
+def parse_timeout(timeout_str: str, default: int = 60) -> int:
+    """
+    Parse timeout value from environment variable.
+    - Must be greater than 10
+    - If decimal, convert to integer
+    - If invalid, use default value
+    """
+    if timeout_str is None:
+        return default
+    try:
+        # Convert to float first to handle decimal values
+        timeout_value = float(timeout_str)
+        # Convert to integer (truncates decimal part)
+        timeout_int = int(timeout_value)
+        # Validate minimum value
+        if timeout_int > 10:
+            return timeout_int
+        else:
+            logger.warning(f"Timeout value {timeout_int} is not greater than 10, using default: {default}")
+            return default
+    except (ValueError, TypeError):
+        logger.warning(f"Invalid timeout value '{timeout_str}', using default: {default}")
+        return default
+
+TIMEOUT = parse_timeout(os.getenv("SENSEVOICE_TIMEOUT"))
+
 # Binary and model paths, modify according to your actual directory
 BIN_PATH = "./funasr-llamacpp-linux-x64/llama-funasr-sensevoice"
 MODEL_PATH = "./funasr-llamacpp-linux-x64/gguf/sensevoice-small-q8.gguf"
@@ -61,7 +88,7 @@ async def transcribe_audio(
             cmd,
             capture_output=True,
             text=True,
-            timeout=35
+            timeout=TIMEOUT
         )
         if result.returncode != 0:
             logger.error(f"Transcription failed, return code: {result.returncode}")
@@ -94,5 +121,7 @@ def health():
 
 if __name__ == "__main__":
     import uvicorn
+    # Log timeout configuration at startup
+    logger.info(f"ASR transcription timeout: {TIMEOUT} seconds")
     # host=0.0.0.0 allows access from LAN/internet
     uvicorn.run(app, host="0.0.0.0", port=8000)
