@@ -1,0 +1,39 @@
+# Use Python 3.14 slim image as base
+FROM python:3.14-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies required for funasr binary
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy requirements file
+COPY requirements.txt ./
+
+# Install Python dependencies using pip and clear cache
+RUN pip install --no-cache-dir -r requirements.txt && \
+    rm -rf /root/.cache/pip 
+
+# Copy application code
+COPY main.py ./
+
+# Copy funasr binary and models
+COPY funasr-llamacpp-linux-x64/ ./funasr-llamacpp-linux-x64/
+
+# Make the binary executable
+RUN chmod +x ./funasr-llamacpp-linux-x64/llama-funasr-sensevoice
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+# Run the application
+# Note: SENSEVOICE_API_KEY should be set at runtime via -e flag or docker-compose
+CMD ["python", "main.py"]
