@@ -1,6 +1,6 @@
 # SenseVoice ASR Server
 
-A lightweight, CPU-based Automatic Speech Recognition (ASR) service using the SenseVoice model. Built with FastAPI and optimized for deployment via Docker.
+A lightweight, CPU-based Automatic Speech Recognition (ASR) service using the SenseVoice model. Built with FastAPI and optimized for deployment via Docker to cloud platforms.
 
 ## Features
 
@@ -12,56 +12,40 @@ A lightweight, CPU-based Automatic Speech Recognition (ASR) service using the Se
 - **API Key Authentication**: Secure your service with API key protection
 - **Docker Ready**: Easy deployment with Docker containers
 
+### Supported Audio Formats
+
+- WAV
+- MP3
+- FLAC
+
 ## Quick Start
 
-### Prerequisites
+### Run with Docker🐬
 
-- Python >= 3.14
-- [uv](https://docs.astral.sh/uv/) package manager (recommended) or pip
-- Docker installed on your system (for containerized deployment)
-- At least 1 GB RAM and 1 vCPU recommended
-
-### Running with Docker
-
-1. **Build the Docker image:**
-
-```bash
-docker build -t sensevoice-api .
-```
-
-2. **Run the container:**
+You can find the official Docker image on [Docker **markgzhou/sensevoice-asr-server**](https://hub.docker.com/r/markgzhou/sensevoice-asr-server).
 
 ```bash
 docker run -d \
   -p 8000:8000 \
-  -e SENSEVOICE_API_KEY=YourSecureApiKey \
+  -e SENSEVOICE_API_KEY=MySuperSafeApiKey \
   --name sensevoice-service \
-  sensevoice-api
+  markgzhou/sensevoice-asr-server:latest
 ```
 
-3. **Test the service:**
+### ☀️ Test the Service
 
 ```bash
 curl http://localhost:8000/health
+# Expected: {"status": "ok"}
 ```
 
-Expected response: `{"status": "ok"}`
+### 🔑 Transcribe Audio
 
-## API Usage
-
-### Authentication
-
-All API requests require an `X-API-Key` header:
-
-### Transcribe Audio
-
-**Endpoint:** `POST /v1/audio/transcriptions`
-
-**Request:**
+**Endpoint:** `POST /asr`
 
 ```bash
-curl -X POST http://localhost:8000/v1/audio/transcriptions \
-  -H "X-API-Key: MySuperSafeApiKey" \
+curl -X POST http://localhost:8000/asr \
+  -H "x-api-key:MySuperSafeApiKey" \
   -F "file=@audio.mp3"
 ```
 
@@ -75,32 +59,27 @@ curl -X POST http://localhost:8000/v1/audio/transcriptions \
 }
 ```
 
-### Supported Audio Formats
+---
 
-- WAV
-- MP3
-- FLAC
+## Development
+
+### Prerequisites
+
+- [uv](https://docs.astral.sh/uv/) package manager (recommended) or pip
+- Docker (only for containerized deployment)
+- At least 1 GB RAM and 1 vCPU recommended. No GPU Required.
+
+### Authentication
+
+All API requests require an `x-api-key` header (case-insensitive):
 
 ## Configuration
 
 ### Environment Variables
 
-| Variable             | Description                | Default             |
+| Variable             | Description                | Default value       |
 | -------------------- | -------------------------- | ------------------- |
 | `SENSEVOICE_API_KEY` | API key for authentication | `MySuperSafeApiKey` |
-
-### Custom API Key
-
-Set a secure API key when running the container:
-
-```bash
-docker run -d \
-  -p 8000:8000 \
-  -e SENSEVOICE_API_KEY=MyCustomSecureKey123 \
-  sensevoice-api
-```
-
-## Development
 
 ### Project Structure
 
@@ -139,31 +118,13 @@ This command will:
 **Set environment variable:**
 
 ```bash
-# Linux/macOS
 export SENSEVOICE_API_KEY=YourSecureApiKey
-
-# Windows (PowerShell)
-$env:SENSEVOICE_API_KEY="YourSecureApiKey"
-
-# Windows (Command Prompt)
-set SENSEVOICE_API_KEY=YourSecureApiKey
 ```
 
 **Run the service:**
 
 ```bash
 uv run python main.py
-```
-
-Or activate the virtual environment first:
-
-```bash
-# Activate virtual environment
-source .venv/bin/activate  # Linux/macOS
-.venv\Scripts\activate     # Windows
-
-# Run the service
-python main.py
 ```
 
 The service will start on `http://0.0.0.0:8000` / `http://localhost:8000`
@@ -199,7 +160,7 @@ This service leverages the [llama.cpp](https://github.com/ggerganov/llama.cpp) r
 
 ### API returns 401 error
 
-- Verify the `X-API-Key` header is included in requests
+- Verify the `x-api-key` header is included in requests (case-insensitive)
 - Check that the API key matches the `SENSEVOICE_API_KEY` environment variable
 
 ### Transcription fails
