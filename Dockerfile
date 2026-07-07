@@ -1,6 +1,15 @@
 # Use Python 3.14 slim image as base
 FROM python:3.14-slim
 
+# Metadata
+LABEL org.opencontainers.image.title="SenseVoice-ASR-Server"
+LABEL org.opencontainers.image.description="SenseVoice ASR Server"
+LABEL org.opencontainers.image.authors="Guanlong Zhou"
+LABEL org.opencontainers.image.source="https://github.com/DaDao-Labs/SenseVoice-ASR-Server"
+LABEL org.opencontainers.image.port="8000"
+LABEL org.opencontainers.image.version="latest"
+LABEL org.opencontainers.image.license="MIT"
+
 # Set working directory
 WORKDIR /app
 

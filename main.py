@@ -61,7 +61,7 @@ async def transcribe_audio(
             cmd,
             capture_output=True,
             text=True,
-            timeout=15
+            timeout=35
         )
         if result.returncode != 0:
             logger.error(f"Transcription failed, return code: {result.returncode}")

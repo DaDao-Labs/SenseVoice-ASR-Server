@@ -22,7 +22,7 @@ A lightweight, CPU-based Automatic Speech Recognition (ASR) service using the Se
 
 ### Run with Docker🐬
 
-You can find the official Docker image on [Docker **markgzhou/sensevoice-asr-server**](https://hub.docker.com/r/markgzhou/sensevoice-asr-server).
+You can find the Docker image on [**markgzhou/sensevoice-asr-server**](https://hub.docker.com/r/markgzhou/sensevoice-asr-server).
 
 ```bash
 docker run -d \
