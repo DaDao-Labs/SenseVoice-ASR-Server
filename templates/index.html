@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SenseVoice ASR Service</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .github-star {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .github-star a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .github-star a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 14px;
+        }
+        
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: scale(1.02);
+        }
+        
+        .file-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .loading-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .processing-timer {
+            font-family: 'Courier New', monospace;
+            font-size: 32px;
+            color: #667eea;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .status-message {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .result-container {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .result-text {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        .result-time {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .format-info {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 SenseVoice ASR</h1>
+        <p class="subtitle">Audio Transcription Service</p>
+        
+        <div class="github-star">
+            <a href="https://github.com/DaDao-Labs/SenseVoice-ASR-Server" target="_blank" rel="noopener noreferrer">
+                ⭐ Star on GitHub
+            </a>
+        </div>
+        
+        <div class="input-group">
+            <label for="apiKey">API Key</label>
+            <input type="text" id="apiKey" value="MySuperSafeApiKey" placeholder="Enter your API key">
+        </div>
+        
+        <div class="file-upload-area" id="fileUploadArea" onclick="triggerFileInput()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <div class="file-icon">📁</div>
+            <div>Click or drag to upload audio file</div>
+            <div class="format-info">Supported formats: WAV, MP3, FLAC</div>
+        </div>
+        <input type="file" id="fileInput" accept=".wav,.mp3,.flac" class="hidden" onchange="handleFileSelect(event)">
+        <div id="selectedFileName" style="margin-top: 10px; text-align: center; color: #667eea; font-weight: 600;"></div>
+        
+        <button id="submitBtn" class="submit-btn" onclick="submitAudio()">
+            🚀 Transcribe Audio
+        </button>
+        
+        <div id="resultContainer" class="result-container hidden">
+            <div class="result-title">Transcription Result:</div>
+            <div class="result-text" id="resultText"></div>
+            <div class="result-time" id="resultTime"></div>
+        </div>
+        
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+    
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <h3>Processing Audio...</h3>
+            <div class="processing-timer" id="processingTimer">0.0s</div>
+            <div class="status-message" id="statusMessage">Initializing...</div>
+        </div>
+    </div>
+    
+    <script>
+        let processingTimerInterval;
+        let processingStartTime;
+        let selectedFile = null;
+        
+        const statusMessages = [
+            'Analyzing audio...',
+            'Processing speech features...',
+            'Transcribing...',
+            'Generating result...',
+            'Almost there...'
+        ];
+        
+        function triggerFileInput() {
+            document.getElementById('fileInput').click();
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('fileUploadArea').classList.add('dragover');
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('fileUploadArea').classList.remove('dragover');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('fileUploadArea').classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+        
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+        
+        function processFile(file) {
+            const validExtensions = ['.wav', '.mp3', '.flac'];
+            const ext = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+            
+            if (!validExtensions.includes(ext)) {
+                alert('Invalid file format. Please upload WAV, MP3, or FLAC files.');
+                return;
+            }
+            
+            selectedFile = file;
+            document.getElementById('selectedFileName').textContent = `Selected: ${file.name}`;
+        }
+        
+        async function submitAudio() {
+            const apiKey = document.getElementById('apiKey').value;
+            const resultContainer = document.getElementById('resultContainer');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (!apiKey) {
+                alert('Please enter an API key');
+                return;
+            }
+            
+            if (!selectedFile) {
+                alert('Please select a file to upload');
+                return;
+            }
+            
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            submitBtn.disabled = true;
+            resultContainer.classList.add('hidden');
+            errorMessage.textContent = '';
+            
+            processingStartTime = Date.now();
+            let statusIndex = 0;
+            
+            processingTimerInterval = setInterval(() => {
+                const elapsed = (Date.now() - processingStartTime) / 1000;
+                document.getElementById('processingTimer').textContent = elapsed.toFixed(1) + 's';
+                
+                statusIndex = (statusIndex + 1) % statusMessages.length;
+                document.getElementById('statusMessage').textContent = statusMessages[statusIndex];
+            }, 100);
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                
+                const response = await fetch('/asr', {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': apiKey
+                    },
+                    body: formData
+                });
+                
+                clearInterval(processingTimerInterval);
+                const totalTime = ((Date.now() - processingStartTime) / 1000).toFixed(1);
+                document.getElementById('processingTimer').textContent = totalTime + 's';
+                
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.code === 0) {
+                        document.getElementById('resultText').textContent = data.text;
+                        document.getElementById('resultTime').textContent = `Processing time: ${totalTime} seconds`;
+                        resultContainer.classList.remove('hidden');
+                    } else {
+                        errorMessage.textContent = 'Transcription failed: ' + (data.msg || 'Unknown error');
+                    }
+                } else {
+                    const errorData = await response.json();
+                    errorMessage.textContent = 'Error ' + response.status + ': ' + (errorData.msg || errorData.detail?.msg || 'Request failed');
+                }
+                
+            } catch (err) {
+                clearInterval(processingTimerInterval);
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                errorMessage.textContent = 'Network error: ' + err.message;
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
