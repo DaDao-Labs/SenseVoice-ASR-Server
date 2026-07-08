@@ -88,6 +88,8 @@ All API requests require an `x-api-key` header (case-insensitive):
 ```
 SenseVoice-Server/
 ├── main.py                          # Main application code
+├── templates/
+│   └── index.html                   # ASR test page frontend
 ├── Dockerfile                       # Docker build configuration
 ├── .dockerignore                    # Docker ignore rules
 ├── pyproject.toml                   # Python project configuration
