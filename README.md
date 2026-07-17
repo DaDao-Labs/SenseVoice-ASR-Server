@@ -2,6 +2,8 @@
 
 A lightweight, CPU-based Automatic Speech Recognition (ASR) service using the SenseVoice model. Built with FastAPI and optimized for deployment via Docker to cloud platforms.
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/sensevoice-asr-server?referralCode=kanban&utm_medium=integration&utm_source=template&utm_campaign=generic)
+
 ## Features
 
 - **Simple REST API**: Easy-to-use HTTP API for audio transcription
@@ -68,7 +70,7 @@ curl -X POST http://localhost:8000/asr \
 
 - [uv](https://docs.astral.sh/uv/) package manager (recommended) or pip
 - Docker (only for containerized deployment)
-- At least 1 GB RAM and 1 vCPU recommended. No GPU Required.
+- At least 1 GB RAM and 4 vCPU recommended. No GPU Required.
 
 ### Authentication
 
